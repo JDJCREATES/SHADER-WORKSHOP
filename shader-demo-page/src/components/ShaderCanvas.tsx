@@ -7,15 +7,9 @@ import vertexShaderSource from '../shaders/vertexShader.glsl?raw';
 
 interface ShaderCanvasProps {
     fragmentShaderSource: string;
-    uniforms?: Record<string, number | number[] | [number, number] | [number, number, number] | [number, number, number, number]>;
-    mousePosition?: { x: number; y: number };
 }
 
-const ShaderCanvas: React.FC<ShaderCanvasProps> = ({ 
-    fragmentShaderSource, 
-    uniforms = {},
-    mousePosition = { x: 0, y: 0 }
-}) => {
+const ShaderCanvas: React.FC<ShaderCanvasProps> = ({ fragmentShaderSource: fragmentShaderSource }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const glRef = useRef<WebGLRenderingContext | null>(null);
     const programRef = useRef<WebGLProgram | null>(null);
@@ -79,30 +73,8 @@ const ShaderCanvas: React.FC<ShaderCanvasProps> = ({
                 gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
             }
             if (mouseUniformLocation) {
-                gl.uniform2f(mouseUniformLocation, mousePosition.x, mousePosition.y);
+                gl.uniform2f(mouseUniformLocation, 0, 0); // Placeholder for mouse position
             }
-
-            // Set custom uniforms
-            Object.entries(uniforms).forEach(([name, value]) => {
-                const location = gl.getUniformLocation(program, name);
-                if (location) {
-                    if (typeof value === 'number') {
-                        gl.uniform1f(location, value);
-                    } else if (Array.isArray(value)) {
-                        switch (value.length) {
-                            case 2:
-                                gl.uniform2f(location, value[0], value[1]);
-                                break;
-                            case 3:
-                                gl.uniform3f(location, value[0], value[1], value[2]);
-                                break;
-                            case 4:
-                                gl.uniform4f(location, value[0], value[1], value[2], value[3]);
-                                break;
-                        }
-                    }
-                }
-            });
             
             gl.drawArrays(gl.TRIANGLES, 0, 6);
             animationFrameIdRef.current = requestAnimationFrame(render);
@@ -117,7 +89,7 @@ const ShaderCanvas: React.FC<ShaderCanvasProps> = ({
                 cancelAnimationFrame(animationFrameIdRef.current);
             }
         };
-    }, [fragmentShaderSource, uniforms, mousePosition]);
+    }, [fragmentShaderSource]);
 
     return <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />;
 };

@@ -26,14 +26,21 @@ export function createShader(gl: WebGLRenderingContext, type: number, source: st
 }
 
 export function createProgram(gl: WebGLRenderingContext, vertexShader: WebGLShader, fragmentShader: WebGLShader): WebGLProgram | null {
+    const vert = gl.createShader(gl.VERTEX_SHADER);
+    const frag = gl.createShader(gl.FRAGMENT_SHADER);
+    if (!vert || !frag) {
+        console.error("Failed to create shaders");
+        return null;
+    }
+
     const program = gl.createProgram();
     if (!program) {
         console.error("Failed to create program");
         return null;
     }
 
-    gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
+    gl.attachShader(program, vert);
+    gl.attachShader(program, frag);
     gl.linkProgram(program);
 
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
